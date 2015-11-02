@@ -1,0 +1,31 @@
+{% extends 'main.html' %}
+{% block index %}
+<p align = "center"> <i>Добро пожаловать на новостной сайт!</i></p>
+
+
+Категории:
+{% if categories %}
+    <ul>
+    {% for cat in categories %}
+      <!-- <div align="center"><a href="/article/by_category/{{ cat.id }}">{{ cat.category_name}}</a></div>
+ -->      <a href="/article/by_category/{{ cat.id }}">{{ cat.category_name}}</a>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>Нет категорий.</p>
+{% endif %}
+
+<br>
+{% if latest_articles_list %}
+    <ul>
+    {% for article in latest_articles_list %}
+      <div align="center"><h5>Дата публикации: {{ article.pub_date }}</h5>
+      <a href="/article/{{ article.id }}/">{{ article.article_title}}</a></div>
+
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No articles are available.</p>
+{% endif %}
+<!-- <a href="/article/new_post.html">New post</a> -->
+{% endblock %}

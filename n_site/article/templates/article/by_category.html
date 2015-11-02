@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>{{category_name}}</title>
+</head>
+<body>
+<a href="/article/">На главную</a>
+{% if category_articles_list %}
+    <ul>
+    {% for article in category_articles_list %}
+      <div align="center"><a href="/article/{{ article.id }}/">{{ article.article_title}} </a></div>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No articles are available.</p>
+{% endif %}
+</body>
+</html>
