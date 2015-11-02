@@ -33,26 +33,12 @@ def detail(request, article_id):
     return render(request, 'article/detail.html', context)
 
 
-def new_post(request):
-    if request.method == 'POST':
-        form = PostForm(request.POST)
-        if form.is_valid():
-             text = form.cleaned_data['post_text']
-             title = form.cleaned_data['post_title']
-             p = Article.objects.create(article_text=text, article_title=title, pub_date=timezone.now())
-             return HttpResponseRedirect(reverse('article:detail', args=(p.id,)))
-    else:
-        form = PostForm()
-        return render(request, 'article/new_post.html', {'form' : form})
-
-
 def  like_post(request, article_id):
     try:
         if request.method == 'POST':
             cur_article = Article.objects.get(pk=article_id)
-            if cur_article.was_liked == False:
-                cur_article.likes_number += 1
-                cur_article.save()
+            cur_article.likes_number += 1
+            cur_article.save()
     except Article.DoesNotExist:
         raise Http404("Article does not exist")
     return HttpResponseRedirect(reverse('article:detail', args=(article_id,)))
@@ -65,7 +51,6 @@ def  add_comment(request, article_id):
         if request.method == 'POST':
             form = CommentForm(request.POST)
             if form.is_valid():
-                #nick = user.cleaned_data['nickname']
                 text = form.cleaned_data['comment_text']
                 com = Comment.objects.create(comment_text=text, com_nickname=user.username,
                          comment_pub_date=timezone.now(), article=cur_article, )
@@ -81,9 +66,8 @@ def  like_comment(request, article_id, comment_id):
         if request.method == 'POST':
             cur_article = Article.objects.get(pk=article_id)
             cur_comment = Comment.objects.get(pk=comment_id)
-            if cur_article.was_liked == False:
-                cur_comment.c_likes_number += 1
-                cur_comment.save()
+            cur_comment.c_likes_number += 1
+            cur_comment.save()
     except Comment.DoesNotExist:
         raise Http404("Comment does not exist")
     return HttpResponseRedirect(reverse('article:detail', args=(article_id,)))
@@ -129,7 +113,6 @@ def log_in(request):
         else:
              context["login_error"] = "Пользователь не найден"
              return render(request, 'article/log_in.html', context)
-        #return HttpResponseRedirect('article/index.html')
     else:
         return render(request, 'article/log_in.html', context)
 
