@@ -30,3 +30,17 @@ class Comment(models.Model):
         return self.comment_text
 
 
+class ArticleLikeList(models.Model):
+    related_article = models.ForeignKey(Article)
+    user_nick = models.CharField(max_length=50, blank=True)
+
+    def __str__(self):
+        return self.user_nick
+
+class CommentLikeList(models.Model):
+    related_article = models.ForeignKey(Article)
+    related_comment = models.ForeignKey(Comment)
+    user_nick = models.CharField(max_length=50, blank=True)
+
+    def __str__(self):
+        return self.user_nick

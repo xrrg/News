@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from .models import Article, Comment, Category
+from .models import Article, Comment, Category, ArticleLikeList, CommentLikeList
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from .forms import *
@@ -21,13 +21,21 @@ def detail(request, article_id):
     try:
         cur_article = Article.objects.get(pk=article_id)
         rel_comment =  Comment.objects.filter(article=cur_article)
+        user = auth.get_user(request)
         comment_form = CommentForm()
         context = {}
         context.update(csrf(request))
+        article_not_liked_by_user = True
+        # оценил ли пользователь?
+        user_liked_article = ArticleLikeList.objects.filter(related_article=cur_article, user_nick=user.username)
+        if user_liked_article:
+            article_not_liked_by_user = False
+
         context = {'article_text': cur_article.article_text, "title" : cur_article.article_title,
                            'author' : cur_article.author_nickname,
                            'rel_comment' : rel_comment, 'comment_form' : comment_form,
-                           'likes' : cur_article.likes_number, 'category':cur_article.category, 'id':article_id}
+                           'likes' : cur_article.likes_number, 'category':cur_article.category, 'id':article_id,
+                           'not_liked':article_not_liked_by_user, }
     except Article.DoesNotExist:
         raise Http404("Article does not exist")
     return render(request, 'article/detail.html', context)
@@ -37,7 +45,10 @@ def  like_post(request, article_id):
     try:
         if request.method == 'POST':
             cur_article = Article.objects.get(pk=article_id)
+            user = auth.get_user(request)
             cur_article.likes_number += 1
+            new_like = ArticleLikeList(related_article=cur_article, user_nick=user.username,)
+            new_like.save()
             cur_article.save()
     except Article.DoesNotExist:
         raise Http404("Article does not exist")
@@ -66,6 +77,10 @@ def  like_comment(request, article_id, comment_id):
         if request.method == 'POST':
             cur_article = Article.objects.get(pk=article_id)
             cur_comment = Comment.objects.get(pk=comment_id)
+            user = auth.get_user(request)
+            # new_like = CommentLikeList(related_article=cur_article, related_comment=cur_comment,
+            #                                                                                       user_nick=user.username)
+            # new_like.save()
             cur_comment.c_likes_number += 1
             cur_comment.save()
     except Comment.DoesNotExist:

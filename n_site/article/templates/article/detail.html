@@ -3,18 +3,21 @@
 <head>
 	<title>{{ title }}</title>
 </head>
+<body>
 <a href="/article/">На главную</a>
 <h1>{{title}}</h1>
-<h5>Автор: {{author}}</h5>
+<!-- <h5>Автор: {{author}}</h5> -->
 <h5>Категория: {{category}}</h5>
 <div><font color="green">{{article_text}}</font></div>
 <br>
-<div align="center">{{likes}} users liked this.<br>
-{% if user.is_authenticated %}
+<div align="center">{{likes}} пользователям это понравилось.<br>
+{% if user.is_authenticated and not_liked %}
 <form action="/article/like_post/{{ id }}/" method="post">
 	{% csrf_token %}
 <input type="submit" value="I like it!" />
 </form>
+{% elif user.is_authenticated and not not_liked %}
+<u><font color="red">Вы уже оценили эту запись!</font></u>
 {% else %}
 <u><font color="red">Авторизируйтесь, чтобы оценить!</font></u>
 {% endif %}
@@ -30,6 +33,7 @@
 <br>
 <h4>Комментарии:</h4>
 {% for comment in rel_comment %}
+
 <div align="center">
 <h5><u>{{comment.com_nickname}} <font color="red"> ({{ comment.comment_pub_date }})</font>:</u></h5>
  {{ comment }}                                      ---{{ comment.c_likes_number  }} likes.<br>
@@ -40,7 +44,7 @@
 {% endif %}
 </form>
  </div>
-
+{{  user_liked_comment_set.related_comment.com_nickname }}
 {% endfor %}
-
+</body>
 </html>
