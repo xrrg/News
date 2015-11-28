@@ -12,4 +12,7 @@ urlpatterns = [
     url(r'^register', views.register, name="register"),
     url(r'^log_out', views.log_out, name="logout"),
     url(r'^log_in', views.log_in, name="login"),
+    url(r'^profile/(?P<user_id>[0-9]+)/$', views.profile, name="profile"),
+    url(r'^send_message/(?P<reciever_id>[0-9]+)/$', views.send_message, name='send_message'),
+    url(r'^message/(?P<message_id>[0-9]+)/$', views.show_message, name="show_message"),
 ]

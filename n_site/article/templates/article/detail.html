@@ -3,6 +3,7 @@
 <head>
 	<title>{{ title }}</title>
 </head>
+
 <body>
 <a href="/article/">На главную</a>
 <h1>{{title}}</h1>
@@ -33,16 +34,21 @@
 <br>
 <h4>Комментарии:</h4>
 {% for comment in rel_comment %}
-
 <div align="center">
-<h5><u>{{comment.com_nickname}} <font color="red"> ({{ comment.comment_pub_date }})</font>:</u></h5>
+{% if user.is_authenticated and user.username != comment.com_nickname %}
+<h5><u> <a href="/article/profile/{{ comment.author_id }}/">{{comment.com_nickname}}</a><font color="red"> ({{ comment.comment_pub_date }})</font>:</u><br>
+<a href="/article/profile/{{ comment.author_id }}/">Отправить сообщение</a>
+</h5>
+{% else %}
+<h5><u> <a href="/article/profile/{{ comment.author_id }}/">{{comment.com_nickname}}</a><font color="red"> ({{ comment.comment_pub_date }})</font>:</u></h5>
+{% endif %}
  {{ comment }}                                      ---{{ comment.c_likes_number  }} likes.<br>
  {% if user.is_authenticated %}
 <form action="/article/like_comment/{{ id }}/{{ comment.id }}/" method="post">
 	{% csrf_token %}
 <input type="submit" value="like" />
-{% endif %}
 </form>
+{% endif %}
  </div>
 {{  user_liked_comment_set.related_comment.com_nickname }}
 {% endfor %}

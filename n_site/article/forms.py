@@ -15,3 +15,7 @@ class PostForm(forms.Form):
 
 class CommentForm(forms.Form):
     comment_text = forms.CharField(label='Текст ', widget=forms.Textarea)
+
+class MessageForm(forms.Form):
+    title = forms.CharField(label='Заголовок', max_length=200)
+    text = forms.CharField(widget=forms.Textarea)

@@ -1,17 +1,21 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from .models import Article, Comment, Category, ArticleLikeList, CommentLikeList
+from .models import Article, Comment, Category, ArticleLikeList, CommentLikeList, PrivateMessage
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from .forms import *
 from django.core.context_processors import csrf
 from django.contrib import auth
+from django.contrib.auth.models import User
 
 def index(request):
     latest_articles_list = Article.objects.order_by('-pub_date')[:10]
     categories = Category.objects.all()
     user = auth.get_user(request)
-    context = {'latest_articles_list': latest_articles_list, 'categories':categories,'user':user}
+    was_read_mes_set = PrivateMessage.objects.filter(reciever=user, was_read=False)
+    new_message_numb = was_read_mes_set.count()
+    context = {'latest_articles_list': latest_articles_list, 'categories':categories,'user':user,
+                       'new_message':was_read_mes_set, 'new_message_numb' : new_message_numb,}
     return render(request, 'article/index.html', context)
 
 
@@ -64,7 +68,7 @@ def  add_comment(request, article_id):
             if form.is_valid():
                 text = form.cleaned_data['comment_text']
                 com = Comment.objects.create(comment_text=text, com_nickname=user.username,
-                         comment_pub_date=timezone.now(), article=cur_article, )
+                         comment_pub_date=timezone.now(), article=cur_article, author_id=user.id,)
                 com.save()
         else:
             comment_form = CommentForm()
@@ -132,4 +136,44 @@ def log_in(request):
         return render(request, 'article/log_in.html', context)
 
 
+def profile(request, user_id):
+    cur_user = User.objects.get(pk=user_id)
+    message_set = PrivateMessage.objects.filter(reciever=cur_user)
+    was_read_mes_set = PrivateMessage.objects.filter(reciever=cur_user, was_read=True)
+    not_read_mes_set = PrivateMessage.objects.filter(reciever=cur_user, was_read=False)
+    context = {}
+    com_set = Comment.objects.filter(com_nickname=cur_user.username)
+    numb_of_comments = com_set.count()
+    numb_of_likes = 0
+    message_form = MessageForm()
+    for comment in com_set:
+        numb_of_likes += comment.c_likes_number
+    context["profile_owner"] = cur_user
+    context["message_set"] = message_set
+    context["leaved_comments_number"] = numb_of_comments
+    context["like_number"] = numb_of_likes
+    context["message_form"] = message_form
+    context["was_read_mes_set"] = was_read_mes_set
+    context["not_read_mes_set"] = not_read_mes_set
+    return render(request, 'article/profile.html', context)
 
+def  send_message(request, reciever_id):
+    cur_reciever = User.objects.get(pk=reciever_id)
+    cur_user = auth.get_user(request)
+    if request.method == 'POST':
+        message_form = MessageForm(request.POST)
+        if message_form.is_valid():
+            text = message_form.cleaned_data['text']
+            title = message_form.cleaned_data['title']
+            mes = PrivateMessage.objects.create(author=cur_user, reciever=cur_reciever,
+                         was_send=timezone.now(), header=title, message=text, was_read=False)
+            mes.save()
+    return HttpResponseRedirect(reverse('article:profile', args=(reciever_id)))
+
+def show_message(request, message_id):
+    message = PrivateMessage.objects.get(pk=message_id)
+    context = {}
+    context["message"] = message
+    message.was_read = True
+    message.save()
+    return render(request, 'article/message.html', context)

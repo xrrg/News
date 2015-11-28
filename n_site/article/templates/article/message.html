@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Личные сообщения</title>
+</head>
+<body>
+<a href="/article/profile/{{ message.reciever.id }}/">Вернуться к профилю</a>
+<p>От: {{ message.author }}</p>
+<p>{{ message.was_send }}</p>
+<p>{{ message.header }}</p>
+<p align="center">{{ message.message }}</p>
+<p><a href="/article/profile/{{ message.author.id }}">Ответить</a></p>
+</body>
+</html>

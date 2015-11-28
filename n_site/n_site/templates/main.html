@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-{% load staticfiles %}
 <html>
 <head>
 	<title>Добро пожаловать!</title>
 </head>
-<body background="{% static background.jpg %}">
 <h1>News site</h1>
 {% block index %} {% endblock %}
 {% if user.username %}
-	<a href="log_out">{{ user.username }}, выйти</a>
+	<a href="/article/profile/{{ user.id }}">{{ user.username }}</a>, <a href="log_out">выйти</a>
+	{% if new_message %}
+		<p>У вас есть новые сообщения ({{ new_message_numb }})!<p>
+	{% endif %}
 {% else %}
 	<a href="/article/log_in">Войти.</a>
 	<a href="/article/register.html">Регистрация</a>

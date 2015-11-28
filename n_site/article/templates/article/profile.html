@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Профиль пользователя</title>
+</head>
+<body>
+<a href="/article/">На главную</a>
+<div align="center">Профиль пользователя {{ profile_owner.username }} </div>
+
+<p>Написал комментариев: {{ leaved_comments_number }} </p>
+<p>Получил лайков: {{ like_number }} </p>
+<br>
+{% if user.is_authenticated and user.username != profile_owner.username %}
+Написать личное сообщение:
+<form action="/article/send_message/{{ profile_owner.id }}/" method="post">
+{% csrf_token %}
+{{ message_form.as_p }}
+<input type="submit" value="Отправить" />
+</form>
+{% endif %}
+{% if message_set and user.is_authenticated and user.username == profile_owner.username %}
+{% if not_read_mes_set %}
+Новые сообщения:
+{% for n_message in not_read_mes_set %}
+<p><a href="/article/message/{{ n_message.id }}/">От {{ n_message.author}}: {{ n_message.header }}</a></p>
+{% endfor %}
+{% endif %}
+<br>
+{% if was_read_mes_set %}
+Прочитанные сообщения:
+{% for r_message in was_read_mes_set %}
+<p><a href="/article/message/{{ r_message.id }}/">От {{ r_message.author}}: {{ r_message.header }}</a></p>
+{% endfor %}
+{% endif %}
+{% endif %}
+</body>
+</html>
