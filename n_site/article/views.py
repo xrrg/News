@@ -128,7 +128,7 @@ def register(request):
             email_body = "Hey %s, thanks for signing up. To activate your account, click this link  \
                                  http://127.0.0.1:8000/article/confirm/%s" % (newuser.username, activation_key)
 
-            send_mail(email_subject, email_body, 'xrrg.z500@gmail.com', [newuser.email],
+            send_mail(email_subject, email_body, 'email@email', [newuser.email],
                                  fail_silently=False)
 
             auth.login(request, newuser)
