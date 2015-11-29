@@ -41,6 +41,7 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'article',
+    'django.core.mail',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -86,3 +87,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'xrrg.z500@gmail.com'
+EMAIL_HOST_PASSWORD = '96Falcon25011996'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'xrrg.z500@gmail.com'
+SERVER_EMAIL = 'xrrg.z500@gmail.com'

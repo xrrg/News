@@ -5,8 +5,11 @@
 </head>
 <h1>News site</h1>
 {% block index %} {% endblock %}
-{% if user.username %}
+{% if user.is_authenticated %}
 	<a href="/article/profile/{{ user.id }}">{{ user.username }}</a>, <a href="log_out">выйти</a>
+	{% if not user.is_active %}
+		<p><font color="red"> Аккаунт не активирован!</font></p>
+	{% endif %}
 	{% if new_message %}
 		<p>У вас есть новые сообщения ({{ new_message_numb }})!<p>
 	{% endif %}

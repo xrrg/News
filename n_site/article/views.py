@@ -1,21 +1,28 @@
+# -*- coding: utf-8 -*-
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from .models import Article, Comment, Category, ArticleLikeList, CommentLikeList, PrivateMessage
+from .models import *
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from .forms import *
 from django.core.context_processors import csrf
 from django.contrib import auth
 from django.contrib.auth.models import User
+from django.core.mail import send_mail
+import hashlib, random
 
 def index(request):
     latest_articles_list = Article.objects.order_by('-pub_date')[:10]
     categories = Category.objects.all()
     user = auth.get_user(request)
-    was_read_mes_set = PrivateMessage.objects.filter(reciever=user, was_read=False)
-    new_message_numb = was_read_mes_set.count()
-    context = {'latest_articles_list': latest_articles_list, 'categories':categories,'user':user,
-                       'new_message':was_read_mes_set, 'new_message_numb' : new_message_numb,}
+    context = {'latest_articles_list': latest_articles_list, 'categories':categories,'user':user, }
+    if user.is_anonymous():
+        return render(request, 'article/index.html', context)
+    else:
+        was_read_mes_set = PrivateMessage.objects.filter(reciever=user, was_read=False)
+        new_message_numb = was_read_mes_set.count()
+        context['new_message_numb'] = new_message_numb
+        context['new_message'] = was_read_mes_set
     return render(request, 'article/index.html', context)
 
 
@@ -101,13 +108,29 @@ def by_category(request, category_id):
 def register(request):
     context = {}
     context.update(csrf(request))
-    context["form"] = UserCreationForm()
+    context["form"] = RegistrationForm()
     if request.method =='POST':
-        newuser_form = UserCreationForm(request.POST)
+        newuser_form = RegistrationForm(request.POST)
         if newuser_form.is_valid():
             newuser_form.save()
             newuser = auth.authenticate(username=newuser_form.cleaned_data["username"],
-                                                            password=newuser_form.cleaned_data["password2"])
+                                                            password=newuser_form.cleaned_data["password2"],
+                                                            email=newuser_form.cleaned_data["email"],
+                                                            )
+            newuser.is_active = False
+            newuser.save()
+            salt = hashlib.sha1(str(random.random()).encode('utf-8')).hexdigest()[:5]
+            salted_username = salt + newuser.username
+            activation_key = hashlib.sha1(salted_username.encode('utf-8')).hexdigest()
+            new_profile = UserProfile(user=newuser, activation_key=activation_key)
+            new_profile.save()
+            email_subject = 'Подтверждение регистрации'
+            email_body = "Hey %s, thanks for signing up. To activate your account, click this link  \
+                                 http://127.0.0.1:8000/article/confirm/%s" % (newuser.username, activation_key)
+
+            send_mail(email_subject, email_body, 'xrrg.z500@gmail.com', [newuser.email],
+                                 fail_silently=False)
+
             auth.login(request, newuser)
             return redirect('/article/')
         else:
@@ -177,3 +200,10 @@ def show_message(request, message_id):
     message.was_read = True
     message.save()
     return render(request, 'article/message.html', context)
+
+def confirm(request, activation_key):
+    user_profile = get_object_or_404(UserProfile, activation_key=activation_key)
+    user = user_profile.user
+    user.is_active = True
+    user.save()
+    return redirect("/article/")

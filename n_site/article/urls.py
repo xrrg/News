@@ -15,4 +15,5 @@ urlpatterns = [
     url(r'^profile/(?P<user_id>[0-9]+)/$', views.profile, name="profile"),
     url(r'^send_message/(?P<reciever_id>[0-9]+)/$', views.send_message, name='send_message'),
     url(r'^message/(?P<message_id>[0-9]+)/$', views.show_message, name="show_message"),
+    url(r'^confirm/(?P<activation_key>.*)/$', views.confirm, name="confirm"),
 ]

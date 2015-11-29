@@ -12,18 +12,20 @@
 <div><font color="green">{{article_text}}</font></div>
 <br>
 <div align="center">{{likes}} пользователям это понравилось.<br>
-{% if user.is_authenticated and not_liked %}
+{% if user.is_authenticated and not_liked and user.is_active %}
 <form action="/article/like_post/{{ id }}/" method="post">
 	{% csrf_token %}
 <input type="submit" value="I like it!" />
 </form>
 {% elif user.is_authenticated and not not_liked %}
 <u><font color="red">Вы уже оценили эту запись!</font></u>
+{% elif not user.is_active %}
+<u><font color="red">Активируйте аккаунт!</font></u>
 {% else %}
 <u><font color="red">Авторизируйтесь, чтобы оценить!</font></u>
 {% endif %}
 </div>
-{% if user.is_authenticated %}
+{% if user.is_authenticated and user.is_active %}
 <p>Ваш комментарий:<Br>
 <form action="/article/add_comment/{{ id }}/" method="post">
     {% csrf_token %}
@@ -35,7 +37,7 @@
 <h4>Комментарии:</h4>
 {% for comment in rel_comment %}
 <div align="center">
-{% if user.is_authenticated and user.username != comment.com_nickname %}
+{% if user.is_authenticated and user.username != comment.com_nickname and user.is_active %}
 <h5><u> <a href="/article/profile/{{ comment.author_id }}/">{{comment.com_nickname}}</a><font color="red"> ({{ comment.comment_pub_date }})</font>:</u><br>
 <a href="/article/profile/{{ comment.author_id }}/">Отправить сообщение</a>
 </h5>
@@ -43,7 +45,7 @@
 <h5><u> <a href="/article/profile/{{ comment.author_id }}/">{{comment.com_nickname}}</a><font color="red"> ({{ comment.comment_pub_date }})</font>:</u></h5>
 {% endif %}
  {{ comment }}                                      ---{{ comment.c_likes_number  }} likes.<br>
- {% if user.is_authenticated %}
+ {% if user.is_authenticated and user.is_active %}
 <form action="/article/like_comment/{{ id }}/{{ comment.id }}/" method="post">
 	{% csrf_token %}
 <input type="submit" value="like" />

@@ -5,6 +5,8 @@ from django.utils import timezone
 from django.views.generic.edit import FormView
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login
+from django.contrib.auth.models import User
+
 
 
 
@@ -19,3 +21,12 @@ class CommentForm(forms.Form):
 class MessageForm(forms.Form):
     title = forms.CharField(label='Заголовок', max_length=200)
     text = forms.CharField(widget=forms.Textarea)
+
+class RegistrationForm(UserCreationForm):
+    email = forms.EmailField(required=True, widget=forms.TextInput(attrs={'placeholder': 'Электронный адрес'}))
+    first_name = forms.CharField(required=True)
+    last_name = forms.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email', 'username', 'password1', 'password2')

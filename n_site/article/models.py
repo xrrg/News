@@ -2,6 +2,7 @@ from django.db import models
 # from django.contrib.auth.forms import User
 from django.contrib.auth.models import User
 
+
 class Category(models.Model):
     category_name = models.CharField(max_length=200)
 
@@ -57,3 +58,10 @@ class PrivateMessage(models.Model):
 
     def __str__(self):
         return self.header
+
+class UserProfile(models.Model):
+    user = models.OneToOneField(User)
+    activation_key = models.CharField(max_length=40, blank=True)
+
+    def __str__(self):
+        return self.user.username
